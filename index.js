@@ -9,7 +9,7 @@
     define(factory)
   } else {
     // Browser globals
-    root.MyModule = factory()
+    root.Rotate2 = factory()
   }
 })(this, function () {
 
@@ -22,8 +22,14 @@
 
   function Rotate2 (options, callback) {
 
+    this.eventTarget = document
     this._callback = callback
-    this._startPoint = {}
+
+    this._centerPoint = []
+    this._startPoint = []
+    this._movingPoint = []
+
+    this.bind()
   }
 
   Rotate2.prototype.bind = function () {
@@ -33,20 +39,32 @@
   }
 
   Rotate2.prototype.update = function () {
-
+    var degree = deg(
+      this._startPoint[0], this._startPoint[1],
+      this._centerPoint[0], this._centerPoint[1],
+      this._movingPoint[0], this._movingPoint[1]
+    )
+    this._callback && this._callback(degree)
   }
 
   Rotate2.prototype.onStart = function (e) {
-    var point = hasTouch ? e.touches[0] : e
-    this._startPoint = [e.clientX, e.clientY]
+    e = hasTouch ? e.touches[0] : e
+    this._startPoint = [e.pageX, e.pageY]
   }
 
-  Rotate2.prototype.onMove = function () {
+  Rotate2.prototype.onMove = function (e) {
+    if (!this._startPoint) {
+      return
+    }
 
+    e = hasTouch ? e.touches[0] : e
+    this._movingPoint = [e.pageX, e.pageY]
+
+    this.update()
   }
 
   Rotate2.prototype.onEnd = function () {
-
+    this._startPoint = null
   }
 
   Rotate2.prototype.center = function (x, y) {
@@ -94,11 +112,12 @@
   return Rotate2
 })
 
-
+/*
 var r = new Rotate2({
   eventTarget: document,
-  center:[ clientX, clientY ],
-  safeRadiu: 10
+  center: [pageX, pageY], // or an dom element
+  innerRadius: 10,
+  outerRadius: Infinity
 }, deg => {})
 
 r.deg(s, e)
@@ -106,3 +125,4 @@ r.deg(s, e)
 r.disable()
 
 r.enable()
+*/

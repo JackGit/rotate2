@@ -23,9 +23,10 @@
   function Rotate2 (options, callback) {
 
     this.eventTarget = document
-    this._callback = d => {
+    this._callback = (deg, lastDeg) => {
+      var d = deg + lastDeg
       // document.getElementById('circle').style.transform = 'rotateZ(' + d + 'deg)'
-      var v = d > 0 ? d : 360 + d
+      var v = (d > 0 ? d : 360 + d) % 360
       console.log(v, Math.floor(v / 10)) // map [0 - 180, -180 - 0] into [0 - 360]
       updateImage(35 - Math.floor(v / 10))
     }
@@ -33,6 +34,9 @@
     this._centerPoint = { x: 250, y: 250 }
     this._startPoint = null
     this._movingPoint = null
+
+    this._deltaDegree = 0
+    this._lastDegree = 0
 
     this.bind()
   }
@@ -44,12 +48,12 @@
   }
 
   Rotate2.prototype.update = function () {
-    var degree = deg(
+    this._deltaDegree = deg(
       this._centerPoint,
       this._startPoint,
       this._movingPoint
     )
-    this._callback && this._callback(degree)
+    this._callback && this._callback(this._deltaDegree, this._lastDegree)
   }
 
   Rotate2.prototype.onStart = function (e) {
@@ -71,6 +75,7 @@
 
   Rotate2.prototype.onEnd = function () {
     this._startPoint = null
+    this._lastDegree += this._deltaDegree
   }
 
   Rotate2.prototype.center = function (x, y) {

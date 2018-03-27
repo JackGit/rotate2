@@ -23,42 +23,48 @@
   function Rotate2 (options, callback) {
 
     this.eventTarget = document
-    this._callback = callback
+    this._callback = d => {
+      // document.getElementById('circle').style.transform = 'rotateZ(' + d + 'deg)'
+      var v = d > 0 ? d : 360 + d
+      console.log(v, Math.floor(v / 10)) // map [0 - 180, -180 - 0] into [0 - 360]
+      updateImage(35 - Math.floor(v / 10))
+    }
 
-    this._centerPoint = []
-    this._startPoint = []
-    this._movingPoint = []
+    this._centerPoint = { x: 250, y: 250 }
+    this._startPoint = null
+    this._movingPoint = null
 
     this.bind()
   }
 
   Rotate2.prototype.bind = function () {
     this.eventTarget.addEventListener(startEvent, this.onStart.bind(this))
-    this.eventTarget.addEventListener(startEvent, this.onStart.bind(this))
-    this.eventTarget.addEventListener(startEvent, this.onStart.bind(this))
+    this.eventTarget.addEventListener(moveEvent, this.onMove.bind(this))
+    this.eventTarget.addEventListener(endEvent, this.onEnd.bind(this))
   }
 
   Rotate2.prototype.update = function () {
     var degree = deg(
-      this._startPoint[0], this._startPoint[1],
-      this._centerPoint[0], this._centerPoint[1],
-      this._movingPoint[0], this._movingPoint[1]
+      this._centerPoint,
+      this._startPoint,
+      this._movingPoint
     )
     this._callback && this._callback(degree)
   }
 
   Rotate2.prototype.onStart = function (e) {
     e = hasTouch ? e.touches[0] : e
-    this._startPoint = [e.pageX, e.pageY]
+    this._startPoint = { x: e.pageX, y: e.pageY }
   }
 
   Rotate2.prototype.onMove = function (e) {
+    e.preventDefault()
     if (!this._startPoint) {
       return
     }
 
     e = hasTouch ? e.touches[0] : e
-    this._movingPoint = [e.pageX, e.pageY]
+    this._movingPoint = { x: e.pageX, y: e.pageY }
 
     this.update()
   }
@@ -92,21 +98,21 @@
   }
 
   // length of two points
-  function len (x1, y1, x2, y2) {
-    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
+  function len (p1, p2) {
+    return Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y))
   }
 
-  // s or e equals to o will returns NaN
   function deg (
-    sx, sy, // start point
-    ox, oy, // center point
-    ex, ey  // end point
+    cp, // center point
+    sp, // start point
+    ep  // end point
   ) {
-    var rad = Math.acos(
-      ((sx - ox) * (ex - ox) + (sy - oy) * (ey - oy)) /
-      (len(sx, sy, ox, oy) * len(ex, ey, ox, oy))
-    )
+    var rad = Math.atan2(ep.y - cp.y, ep.x - cp.x) - Math.atan2(sp.y - cp.y, sp.x - cp.x)
     return rad2Deg(rad)
+  }
+
+  function getCenterOfElement (elm) {
+
   }
 
   return Rotate2

@@ -12,13 +12,58 @@
       height: 500px;
       border: 1px solid black;
     }
+    #c {
+      position: absolute;
+      top: 250px;
+      left: 250px;
+      width: 2px;
+      height: 2px;
+      display: inline-block;
+      background: red;
+    }
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 500px;
+      height: 500px;
+    }
     </style>
     <script src="index.js"></script>
   </head>
   <body>
     <div id="app"></div>
+    <span id="c"></span>
 
-    <div id="circle">rotate me</div>
+    <div id="circle">
+    </div>
     <!-- built files will be auto injected -->
+    <script>
+    var imgs = []
+    var r = new Rotate2()
+    addImages()
+
+    function addImages () {
+      for (var i = 0; i < 36; i ++) {
+        var img = new Image()
+        img.src = 'imgs/threesixty_' + (i + 1) + '.jpg'
+        img.style.display = 'none'
+        circle.appendChild(img)
+        imgs.push(img)
+      }
+      updateImage(0)
+    }
+
+    function updateImage (n) {
+      imgs.forEach(function (img, i) {
+        if (i === n) {
+          img.style.display = 'inline-block'
+        } else {
+          img.style.display = 'none'
+        }
+      })
+    }
+
+    </script>
   </body>
 </html>

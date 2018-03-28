@@ -29,6 +29,8 @@
 
     this.eventTarget = options.eventTarget || document
     this.callback = options.onRotate
+    // TODO add more callbacks: onRotateStart, onRotate, onRotateEnd
+    // TODO options.center can be { x, y }, domElement or by default is eventTarget, and also can be a function returns { x, y }
 
     this.centerPoint = options.center || centerOfElement(this.eventTarget)
     this.startPoint = null
@@ -86,6 +88,7 @@
 
     e = hasTouch ? e.touches[0] : e
     this.startPoint = { x: e.pageX, y: e.pageY }
+    // TODO this.centerPoint = xxx // dynamically calculate center point
   }
 
   Rotate2.prototype.onMove = function (e) {
@@ -167,9 +170,10 @@
   }
 
   function centerOfElement (elm) {
+    var rect = elm.getBoundingClientRect()
     return {
-      x: elm.offsetLeft + elm.clientWidth / 2,
-      y: elm.offsetTop + elm.clientHeight / 2
+      x: rect.x + rect.width / 2,
+      y: rect.y + rect.height / 2
     }
   }
 

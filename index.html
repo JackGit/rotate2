@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>v-microscope</title>
     <style>
+    body {
+      height: 1000px;
+
+    }
     #circle {
       position: absolute;
       display: inline-block;
@@ -28,6 +32,11 @@
       width: 500px;
       height: 500px;
     }
+    #c2 {
+      width: 100%;
+      height: 100px;
+      background: red;
+    }
 
     </style>
     <script src="index.js"></script>
@@ -37,12 +46,33 @@
     <span id="c"></span>
 
     <div id="circle">
+      123333333
     </div>
+
+    <div id="c2"></div>
     <!-- built files will be auto injected -->
     <script>
     var imgs = []
-    var r = new Rotate2()
-    addImages()
+    var r = new Rotate2({
+      eventTarget: circle,
+      //center: { x: 250, y: 250 },
+      onRotate: (deg, lastDeg) => {
+        var d = deg + lastDeg
+        circle.style.transform = 'rotateZ(' + d + 'deg)'
+        var v = (d > 0 ? d : 360 + d) % 360
+        console.log(v, Math.floor(v / 10)) // map [0 - 180, -180 - 0] into [0 - 360]
+        updateImage(35 - Math.floor(v / 10))
+      }
+    })
+
+    new Rotate2({
+      eventTarget: c2,
+      onRotate: (deg, lastDeg) => {
+        var d = deg + lastDeg
+        c2.style.transform = 'rotateZ(' + d + 'deg)'
+      }
+    })
+    // addImages()
 
     function addImages () {
       for (var i = 0; i < 36; i ++) {

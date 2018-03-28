@@ -20,74 +20,124 @@
 	var endEvent = hasTouch ? 'touchend' : 'mouseup'
 	var cancelEvent = hasTouch ? 'touchcancel' : 'mouseup'
 
-  function Rotate2 (options, callback) {
+  function Rotate2 (options) {
 
-    this.eventTarget = document
-    this._callback = (deg, lastDeg) => {
-      var d = deg + lastDeg
-      // document.getElementById('circle').style.transform = 'rotateZ(' + d + 'deg)'
-      var v = (d > 0 ? d : 360 + d) % 360
-      console.log(v, Math.floor(v / 10)) // map [0 - 180, -180 - 0] into [0 - 360]
-      updateImage(35 - Math.floor(v / 10))
+    if (!options) {
+      console.error('Rotate2(options) options is required')
+      return
     }
 
-    this._centerPoint = { x: 250, y: 250 }
-    this._startPoint = null
-    this._movingPoint = null
+    this.eventTarget = options.eventTarget || document
+    this.callback = options.onRotate
 
-    this._deltaDegree = 0
-    this._lastDegree = 0
+    this.centerPoint = options.center || centerOfElement(this.eventTarget)
+    this.startPoint = null
+    this.movingPoint = null
 
+    this.deltaDegree = 0
+    this.lastDegree = 0
+
+    this.disabled = false
+
+    ;['onStart', 'onMove', 'onEnd', 'onResize'].forEach(function (m) {
+      this[m] = this[m].bind(this)
+    }, this)
+
+    this.init()
+  }
+
+  Rotate2.prototype.init = function () {
     this.bind()
   }
 
   Rotate2.prototype.bind = function () {
-    this.eventTarget.addEventListener(startEvent, this.onStart.bind(this))
-    this.eventTarget.addEventListener(moveEvent, this.onMove.bind(this))
-    this.eventTarget.addEventListener(endEvent, this.onEnd.bind(this))
+    this.eventTarget.addEventListener(startEvent, this.onStart, { passive: false })
+    this.eventTarget.addEventListener(moveEvent, this.onMove, { passive: false })
+    this.eventTarget.addEventListener(endEvent, this.onEnd)
+    this.eventTarget.addEventListener(resizeEvent, this.onResize)
+  }
+
+  Rotate2.prototype.unbind = function () {
+    this.eventTarget.removeEventListener(startEvent, this.onStart)
+    this.eventTarget.removeEventListener(moveEvent, this.onMove)
+    this.eventTarget.removeEventListener(endEvent, this.onEnd)
+    this.eventTarget.removeEventListener(resizeEvent, this.onResize)
   }
 
   Rotate2.prototype.update = function () {
-    this._deltaDegree = deg(
-      this._centerPoint,
-      this._startPoint,
-      this._movingPoint
+    this.deltaDegree = deg(
+      this.centerPoint,
+      this.startPoint,
+      this.movingPoint
     )
-    this._callback && this._callback(this._deltaDegree, this._lastDegree)
+    this.notify()
+  }
+
+  Rotate2.prototype.notify = function () {
+    this.callback && this.callback(this.deltaDegree, this.lastDegree)
   }
 
   Rotate2.prototype.onStart = function (e) {
-    e = hasTouch ? e.touches[0] : e
-    this._startPoint = { x: e.pageX, y: e.pageY }
-  }
-
-  Rotate2.prototype.onMove = function (e) {
-    e.preventDefault()
-    if (!this._startPoint) {
+    if (this.disabled) {
       return
     }
 
+    e.preventDefault()
+
     e = hasTouch ? e.touches[0] : e
-    this._movingPoint = { x: e.pageX, y: e.pageY }
+    this.startPoint = { x: e.pageX, y: e.pageY }
+  }
+
+  Rotate2.prototype.onMove = function (e) {
+    if (this.disabled || !this.startPoint) {
+      return
+    }
+
+    e.preventDefault()
+
+    e = hasTouch ? e.touches[0] : e
+    this.movingPoint = { x: e.pageX, y: e.pageY }
 
     this.update()
   }
 
   Rotate2.prototype.onEnd = function () {
-    this._startPoint = null
-    this._lastDegree += this._deltaDegree
+    if (this.disabled) {
+      return
+    }
+
+    this.startPoint = null
+    this.lastDegree += this.deltaDegree
   }
 
-  Rotate2.prototype.center = function (x, y) {
+  Rotate2.prototype.onResize = function () {
 
   }
 
-  Rotate2.prototype.enable = function () {}
+  /* public methods */
+  Rotate2.prototype.center = function (point) {
+    if (point) {
+      this.centerPoint = point
+    } else {
+      return this.centerPoint
+    }
+  }
 
-  Rotate2.prototype.disable = function () {}
+  Rotate2.prototype.enable = function () {
+    this.disabled = false
+  }
 
-  Rotate2.prototype.deg = function (sx, sy, ex, ey) {
+  Rotate2.prototype.disable = function () {
+    this.disabled = true
+  }
 
+  Rotate2.prototype.reset = function () {
+    this.deltaDegree = this.lastDegree = 0
+    this.notify()
+  }
+
+  Rotate2.prototype.destroy = function () {
+    this.unbind()
   }
 
   /* util functions */
@@ -116,24 +166,12 @@
     return rad2Deg(rad)
   }
 
-  function getCenterOfElement (elm) {
-
+  function centerOfElement (elm) {
+    return {
+      x: elm.offsetLeft + elm.clientWidth / 2,
+      y: elm.offsetTop + elm.clientHeight / 2
+    }
   }
 
   return Rotate2
 })
-
-/*
-var r = new Rotate2({
-  eventTarget: document,
-  center: [pageX, pageY], // or an dom element
-  innerRadius: 10,
-  outerRadius: Infinity
-}, deg => {})
-
-r.deg(s, e)
-
-r.disable()
-
-r.enable()
-*/

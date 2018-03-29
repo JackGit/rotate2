@@ -62,7 +62,7 @@ class Rotate2 {
     this.options.onRotate(this.deltaDegree, this.lastDegree)
   }
 
-  startHandler = (e) => {
+  startHandler = e => {
     if (this.disabled) {
       return
     }
@@ -70,13 +70,13 @@ class Rotate2 {
     e.preventDefault()
 
     e = this.hasTouch ? e.touches[0] : e
-    this.startPoint = { x: e.pageX, y: e.pageY }
-    this.centerPoint = this.getCenter()
+    this.startPoint = { x: e.clientX, y: e.clientY }
+    this.centerPoint = this.center()
 
     this.options.onRotateStart()
   }
 
-  moveHandler = () => {
+  moveHandler = e => {
     if (this.disabled || !this.startPoint) {
       return
     }
@@ -84,7 +84,7 @@ class Rotate2 {
     e.preventDefault()
 
     e = this.hasTouch ? e.touches[0] : e
-    this.movingPoint = { x: e.pageX, y: e.pageY }
+    this.movingPoint = { x: e.clientX, y: e.clientY }
 
     this.update()
   }
@@ -101,15 +101,19 @@ class Rotate2 {
 
   resizeHandler = () => {}
 
-  getCenter () {
-    const { center, eventTarget } = this.options
+  center (value) {
+    if (!value) { // get center value
+      const { center, eventTarget } = this.options
 
-    if (!center) {
-      return centerOfElement(eventTarget)
-    } else if (center instance of Node){
-      return centerOfElement(center)
-    } else {
-      return center
+      if (!center) {
+        return centerOfElement(eventTarget)
+      } else if (center instanceof Node){
+        return centerOfElement(center)
+      } else {
+        return center
+      }
+    } else { // set center value
+      this.options.center = value
     }
   }
 
@@ -161,3 +165,5 @@ const centerOfElement = elm => {
     y: rect.y + rect.height / 2
   }
 }
+
+export default Rotate2

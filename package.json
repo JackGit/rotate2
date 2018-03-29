@@ -1,0 +1,24 @@
+{
+  "name": "rotate2",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackgit/rotate2.git"
+  },
+  "keywords": [
+    "rotate2",
+    "rotate",
+    "rotate2d"
+  ],
+  "author": "ygjack414@hotmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jackgit/rotate2/issues"
+  },
+  "homepage": "https://github.com/jackgit/rotate2#readme"
+}

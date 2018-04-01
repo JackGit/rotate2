@@ -161,8 +161,8 @@ const deg = (
 const centerOfElement = elm => {
   const rect = elm.getBoundingClientRect()
   return {
-    x: rect.x + rect.width / 2,
-    y: rect.y + rect.height / 2
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2
   }
 }
 

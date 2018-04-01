@@ -90,7 +90,7 @@ class Rotate2 {
   }
 
   endHandler = () => {
-    if (this.disabled) {
+    if (this.disabled || !this.startPoint) {
       return
     }
 
